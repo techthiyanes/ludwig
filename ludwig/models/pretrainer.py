@@ -26,18 +26,20 @@ class ScarfModel(LudwigModule):
             model: ECD,
             training_set_metadata: Dict[str, Any],
             corruption_rate: float = 0.6,
+            temperature: float = 1.0,
     ):
         super().__init__()
         self.training_set_metadata = training_set_metadata
         self.input_features = model.input_features
         self.output_features = torch.nn.ModuleDict()
         self.combiner = model.combiner
-        self.g = FCStack(
+        self.projection_head = FCStack(
             first_layer_input_size=self.combiner.output_shape[-1],
             num_layers=2,
             default_fc_size=256,
         )
-        self.q = math.floor(corruption_rate * len(self.input_features))
+        self.num_corrupted_features = math.floor(corruption_rate * len(self.input_features))
+        self.loss_fn = NTXentLoss(temperature=temperature)
 
     def forward(self, inputs):
         if isinstance(inputs, tuple):
@@ -70,7 +72,7 @@ class ScarfModel(LudwigModule):
         # to corrupt
         m = len(inputs)
         mask = np.zeros((batch_size, m), dtype=int)
-        mask[:, :self.q] = 1
+        mask[:, :self.num_corrupted_features] = 1
         mask = shuffle_along_axis(mask, axis=1)
 
         corrupted_inputs = {
@@ -91,16 +93,14 @@ class ScarfModel(LudwigModule):
             encoder_outputs[input_feature_name] = encoder_output
 
         combiner_outputs = self.combiner(encoder_outputs)
-        return self.g(combiner_outputs['combiner_output'])
+        return self.projection_head(combiner_outputs['combiner_output'])
 
     def train_loss(self, targets, predictions, regularization_lambda=0.0):
         anchor_embeddings, corrupted_embeddings = predictions
         embeddings = torch.cat((anchor_embeddings, corrupted_embeddings))
         indices = torch.arange(0, anchor_embeddings.size(0), device=anchor_embeddings.device)
         labels = torch.cat((indices, indices))
-
-        loss = NTXentLoss(temperature=0.10)
-        return loss(embeddings, labels), {}
+        return self.loss_fn(embeddings, labels), {}
 
     def reset_metrics(self):
         pass
@@ -118,6 +118,7 @@ class Pretrainer(Trainer):
             **kwargs
     ):
         before_dict = model.state_dict()
+        print(before_dict)
         ssl_model = ScarfModel(model, training_set_metadata)
         _, train_stats, _, _ = self.train(
             ssl_model,
@@ -125,7 +126,6 @@ class Pretrainer(Trainer):
             **kwargs
         )
         after_dict = model.state_dict()
-        print(before_dict)
         print(ssl_model.state_dict())
         print(after_dict)
         return model, train_stats
