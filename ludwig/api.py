@@ -489,25 +489,26 @@ class LudwigModel:
                 self.model = LudwigModel.create_model(self.config,
                                                       random_seed=random_seed)
 
-            if self.backend.is_coordinator():
-                print_boxed('PRETRAINING')
+            if 'pretraining' in self.config:
+                if self.backend.is_coordinator():
+                    print_boxed('PRETRAINING')
 
-            pretrainer = Pretrainer(
-                model=self.model,
-                resume=model_resume_path is not None,
-                skip_save_model=skip_save_model,
-                skip_save_progress=skip_save_progress,
-                skip_save_log=skip_save_log,
-                callbacks=train_callbacks,
-                random_seed=random_seed,
-                debug=debug,
-                **self.config[TRAINING],
-            )
-            self.model, pretrain_stats = pretrainer.pretrain(
-                self.model,
-                training_set,
-                save_path=model_dir,
-            )
+                pretrainer = Pretrainer(
+                    model=self.model,
+                    resume=model_resume_path is not None,
+                    skip_save_model=skip_save_model,
+                    skip_save_progress=skip_save_progress,
+                    skip_save_log=skip_save_log,
+                    callbacks=train_callbacks,
+                    random_seed=random_seed,
+                    debug=debug,
+                    **self.config[TRAINING],
+                )
+                self.model, pretrain_stats = pretrainer.pretrain(
+                    self.model,
+                    training_set,
+                    save_path=model_dir,
+                )
 
             # init trainer
             with self.backend.create_trainer(
