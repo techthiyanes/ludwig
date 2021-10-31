@@ -568,6 +568,7 @@ class LudwigModel:
                         self.save_config(model_dir)
 
                 try:
+                    print(self.model.state_dict())
                     train_stats = trainer.train(
                         self.model,
                         training_set,
@@ -577,6 +578,8 @@ class LudwigModel:
                     )
 
                     self.model, train_trainset_stats, train_valiset_stats, train_testset_stats = train_stats
+                    print(self.model.state_dict())
+
                     train_stats = {
                         TRAINING: train_trainset_stats,
                         VALIDATION: train_valiset_stats,

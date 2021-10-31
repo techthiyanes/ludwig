@@ -313,7 +313,6 @@ class Trainer(BaseTrainer):
         loss, all_losses = model.train_loss(
             targets, model_outputs, self.regularization_lambda
         )
-        print(f"!!! LOSS: {loss}")
 
         # Begin the backward pass
         variables = model.parameters()
