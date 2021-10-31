@@ -4,6 +4,7 @@ import math
 import numpy as np
 import torch
 from pytorch_metric_learning.losses import NTXentLoss
+from typing import Dict, Any
 
 from ludwig.data.dataset.base import Dataset
 from ludwig.models.ecd import ECD
@@ -23,13 +24,16 @@ class ScarfModel(LudwigModule):
     def __init__(
             self,
             model: ECD,
+            training_set_metadata: Dict[str, Any],
             corruption_rate: float = 0.6,
     ):
+        super().__init__()
+        self.training_set_metadata = training_set_metadata
         self.input_features = model.input_features
         self.output_features = torch.nn.ModuleDict()
         self.combiner = model.combiner
         self.g = FCStack(
-            first_layer_input_size=self.combiner.output_shape,
+            first_layer_input_size=self.combiner.output_shape[-1],
             num_layers=2,
             default_fc_size=256,
         )
@@ -70,11 +74,11 @@ class ScarfModel(LudwigModule):
         mask = shuffle_along_axis(mask, axis=1)
 
         corrupted_inputs = {
-            input_feature_name: np.where(
+            input_feature_name: torch.from_numpy(np.where(
                 mask[:, j],
                 augmentations[input_feature_name],
                 input_values
-            )
+            ))
             for j, (input_feature_name, input_values) in enumerate(inputs.items())
         }
         return corrupted_inputs
@@ -96,7 +100,10 @@ class ScarfModel(LudwigModule):
         labels = torch.cat((indices, indices))
 
         loss = NTXentLoss(temperature=0.10)
-        return loss(embeddings, labels)
+        return loss(embeddings, labels), {}
+
+    def reset_metrics(self):
+        pass
 
 
 class Pretrainer(Trainer):
@@ -107,12 +114,29 @@ class Pretrainer(Trainer):
             self,
             model: ECD,
             dataset: Dataset,
+            training_set_metadata: Dict[str, Any],
             **kwargs
     ):
-        ssl_model = ScarfModel(model)
-        model, train_stats, _, _ = self.train(
+        before_dict = model.state_dict()
+        ssl_model = ScarfModel(model, training_set_metadata)
+        _, train_stats, _, _ = self.train(
             ssl_model,
             training_set=dataset,
             **kwargs
         )
+        after_dict = model.state_dict()
+        print(before_dict)
+        print(ssl_model.state_dict())
+        print(after_dict)
         return model, train_stats
+
+    def evaluation(
+            self,
+            model,
+            dataset,
+            dataset_name,
+            metrics_log,
+            tables,
+            batch_size=128,
+    ):
+        pass

@@ -207,8 +207,8 @@ class NumericalFeatureMixin:
         return np.random.normal(
             feature_metadata['mean'],
             feature_metadata['std'],
-            batch_size
-        )
+            batch_size,
+        ).astype(np.float32)
 
 
 class NumericalInputFeature(NumericalFeatureMixin, InputFeature):

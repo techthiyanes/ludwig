@@ -20,7 +20,7 @@ def test_pretraining(tmpdir):
             'input_features': input_features,
             'output_features': output_features,
             'combiner': {'type': 'concat', 'fc_size': 14},
-            'pretraining': {'epochs': 2},
+            'pretraining': {'epochs': 3},
             'training': {'epochs': 2},
         }
 
