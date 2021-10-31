@@ -53,14 +53,14 @@ class ScarfModel(LudwigModule):
 
         # compute augmentations for all features
         batch_size = None
-        augmentations = []
+        augmentations = {}
         for input_feature_name, input_values in inputs.items():
             batch_size = len(input_values)
             encoder = self.input_features[input_feature_name]
-            augmentations.append(encoder.sample_augmentations(
+            augmentations[input_feature_name] = encoder.sample_augmentations(
                 batch_size,
                 self.training_set_metadata[input_feature_name]
-            ))
+            )
 
         # construct N x M matrix, where every row (batch) samples q features
         # to corrupt
@@ -69,20 +69,14 @@ class ScarfModel(LudwigModule):
         mask[:, :self.q] = 1
         mask = shuffle_along_axis(mask, axis=1)
 
-        corrupted_inputs = {}
-        for j, (input_feature_name, input_values) in enumerate(inputs.items()):
-            encoder = self.input_features[input_feature_name]
-            augmentations = encoder.sample_augmentations(
-                len(input_values),
-                self.training_set_metadata[input_feature_name]
-            )
-
-            corrupted_values = np.where(
+        corrupted_inputs = {
+            input_feature_name: np.where(
                 mask[:, j],
-                augmentations,
+                augmentations[input_feature_name],
                 input_values
             )
-            corrupted_values[input_feature_name] = corrupted_inputs
+            for j, (input_feature_name, input_values) in enumerate(inputs.items())
+        }
         return corrupted_inputs
 
     def _embed(self, inputs):
@@ -116,8 +110,9 @@ class Pretrainer(Trainer):
             **kwargs
     ):
         ssl_model = ScarfModel(model)
-        self.train(
+        model, train_stats, _, _ = self.train(
             ssl_model,
             training_set=dataset,
             **kwargs
         )
+        return model, train_stats
