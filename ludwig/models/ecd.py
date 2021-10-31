@@ -68,7 +68,6 @@ class ECD(LudwigModule):
         # After constructing all layers, clear the cache to free up memory
         clear_data_cache()
 
-
     def get_model_inputs(self, training=True):
         inputs = {
             input_feature_name: input_feature.create_input()

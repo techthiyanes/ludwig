@@ -18,6 +18,7 @@ import logging
 
 import numpy as np
 import torch
+from typing import Dict, Any
 
 from ludwig.constants import *
 from ludwig.decoders.generic_decoders import Classifier
@@ -70,11 +71,18 @@ class CategoryFeatureMixin:
             add_padding=False,
             processor=backend.df_engine
         )
+
+        total = sum(str2freq.values())
+        p = [0.0] * len(str2freq)
+        for s, freq in str2freq.values():
+            p[str2idx[s]] = freq / total
+
         return {
             'idx2str': idx2str,
             'str2idx': str2idx,
             'str2freq': str2freq,
-            'vocab_size': len(str2idx)
+            'vocab_size': len(str2idx),
+            'probabilities': p,
         }
 
     @staticmethod
@@ -103,6 +111,17 @@ class CategoryFeatureMixin:
         )
 
         return proc_df
+
+    def sample_augmentations(
+            self,
+            batch_size: int,
+            feature_metadata: Dict[str, Any],
+    ) -> np.ndarray:
+        return np.random.choice(
+            feature_metadata['vocab_size'],
+            batch_size,
+            p=feature_metadata['probabilities'],
+        )
 
 
 class CategoryInputFeature(CategoryFeatureMixin, InputFeature):

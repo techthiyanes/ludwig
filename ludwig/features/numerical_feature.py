@@ -18,6 +18,7 @@ import logging
 
 import numpy as np
 import torch
+from typing import Dict, Any
 
 from ludwig.constants import *
 from ludwig.decoders.generic_decoders import Regressor
@@ -162,7 +163,15 @@ class NumericalFeatureMixin:
             numeric_transformation_registry,
         )
 
-        return numeric_transformer.fit_transform_params(column, backend)
+        meta_params = numeric_transformer.fit_transform_params(column, backend)
+        if 'mean' not in meta_params:
+            compute = backend.df_engine.compute
+            meta_params = {
+                "mean": compute(column.astype(np.float32).mean()),
+                "std": compute(column.astype(np.float32).std()),
+                **meta_params
+            }
+        return meta_params
 
     @staticmethod
     def add_feature_data(
@@ -189,6 +198,17 @@ class NumericalFeatureMixin:
         )
 
         return proc_df
+
+    def sample_augmentations(
+            self,
+            batch_size: int,
+            feature_metadata: Dict[str, Any],
+    ) -> np.ndarray:
+        return np.random.normal(
+            feature_metadata['mean'],
+            feature_metadata['std'],
+            batch_size
+        )
 
 
 class NumericalInputFeature(NumericalFeatureMixin, InputFeature):
