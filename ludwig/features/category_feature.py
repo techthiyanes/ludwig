@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 import logging
-from typing import Dict
+from typing import Any, Dict
 
 import numpy as np
 import torch
@@ -111,6 +111,17 @@ class CategoryFeatureMixin(BaseFeatureMixin):
         )
 
         return proc_df
+
+    def sample_augmentations(
+        self,
+        batch_size: int,
+        feature_metadata: Dict[str, Any],
+    ) -> np.ndarray:
+        return np.random.choice(
+            feature_metadata["vocab_size"],
+            batch_size,
+            p=feature_metadata["probabilities"],
+        )
 
 
 class CategoryInputFeature(CategoryFeatureMixin, InputFeature):

@@ -277,6 +277,7 @@ class Trainer(BaseTrainer):
         self.device = device
         if self.device is None:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.prev_t = None
 
         if self.horovod:
             self.learning_rate *= self.horovod.size()
@@ -309,9 +310,20 @@ class Trainer(BaseTrainer):
             targets, model_outputs, self.regularization_type, self.regularization_lambda
         )
 
+        # if self.prev_t is not None:
+        #     for name, t in model.state_dict().items():
+        #         print(name, torch.norm((t - self.prev_t[name]).float()))
+
+        self.prev_t = {}
+        for name, t in self.model.state_dict().items():
+            self.prev_t[name] = torch.clone(t)
+
         # Begin the backward pass
         variables = self.model.parameters()
         loss.backward()
+
+        # for name, param in model.named_parameters():
+        #     print(name, param.grad.data.sum())
 
         if self.horovod:
             # Wait for gradient aggregation to complete before clipping the gradients
@@ -356,6 +368,7 @@ class Trainer(BaseTrainer):
 
     @classmethod
     def write_step_summary(cls, train_summary_writer, combined_loss, all_losses, step, learning_rate=None):
+        print(f"!!! COMBINED LOSS: {combined_loss}")
         if not train_summary_writer:
             return
 
@@ -707,6 +720,7 @@ class Trainer(BaseTrainer):
             should_shuffle=self.should_shuffle,
             seed=self.random_seed,
             horovod=self.horovod,
+            ignore_last=True,
         ) as batcher:
 
             # ================ Training Loop ================

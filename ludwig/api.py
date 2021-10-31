@@ -67,6 +67,7 @@ from ludwig.models.predictor import (
     save_evaluation_stats,
     save_prediction_outputs,
 )
+from ludwig.models.pretrainer import Pretrainer
 from ludwig.modules.metric_modules import get_best_function
 from ludwig.utils.data_utils import (
     figure_data_format,
@@ -468,6 +469,28 @@ class LudwigModel:
                 # update config with metadata properties
                 update_config_with_metadata(self.config, training_set_metadata)
                 self.model = LudwigModel.create_model(self.config, random_seed=random_seed)
+
+            if "pretraining" in self.config:
+                if self.backend.is_coordinator():
+                    print_boxed("PRETRAINING")
+
+                pretrainer = Pretrainer(
+                    model=self.model,
+                    training_set_metadata=training_set_metadata,
+                    resume=model_resume_path is not None,
+                    skip_save_model=skip_save_model,
+                    skip_save_progress=skip_save_progress,
+                    skip_save_log=skip_save_log,
+                    callbacks=train_callbacks,
+                    random_seed=random_seed,
+                    debug=debug,
+                    **self.config[TRAINING],
+                )
+                self.model, pretrain_stats = pretrainer.pretrain(
+                    self.model,
+                    training_set,
+                    save_path=model_dir,
+                )
 
             # init trainer
             with self.backend.create_trainer(
