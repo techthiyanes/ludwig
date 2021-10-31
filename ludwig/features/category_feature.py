@@ -74,7 +74,7 @@ class CategoryFeatureMixin:
 
         total = sum(str2freq.values())
         p = [0.0] * len(str2freq)
-        for s, freq in str2freq.values():
+        for s, freq in str2freq.items():
             p[str2idx[s]] = freq / total
 
         return {
