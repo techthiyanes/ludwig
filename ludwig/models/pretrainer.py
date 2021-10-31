@@ -10,7 +10,7 @@ from ludwig.data.dataset.base import Dataset
 from ludwig.models.ecd import ECD
 from ludwig.models.trainer import Trainer
 from ludwig.modules.fully_connected_modules import FCStack
-from ludwig.utils.torch_utils import LudwigModule
+from ludwig.utils.torch_utils import LudwigModule, Dense
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,10 @@ class ScarfModel(LudwigModule):
             first_layer_input_size=self.combiner.output_shape[-1],
             num_layers=2,
             default_fc_size=256,
+        )
+        self.classifier = Dense(
+            input_size=256,
+            output_size=32,
         )
         self.num_corrupted_features = math.floor(corruption_rate * len(self.input_features))
         self.loss_fn = NTXentLoss(temperature=temperature)
@@ -83,6 +87,7 @@ class ScarfModel(LudwigModule):
             ))
             for j, (input_feature_name, input_values) in enumerate(inputs.items())
         }
+
         return corrupted_inputs
 
     def _embed(self, inputs):
@@ -93,7 +98,7 @@ class ScarfModel(LudwigModule):
             encoder_outputs[input_feature_name] = encoder_output
 
         combiner_outputs = self.combiner(encoder_outputs)
-        return self.projection_head(combiner_outputs['combiner_output'])
+        return self.classifier(self.projection_head(combiner_outputs['combiner_output']))
 
     def train_loss(self, targets, predictions, regularization_lambda=0.0):
         anchor_embeddings, corrupted_embeddings = predictions

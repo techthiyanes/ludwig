@@ -372,6 +372,7 @@ class Trainer(BaseTrainer):
             step,
             learning_rate=None
     ):
+        print(f"!!! COMBINED LOSS: {combined_loss}")
         if not train_summary_writer:
             return
 
