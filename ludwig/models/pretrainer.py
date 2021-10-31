@@ -117,17 +117,12 @@ class Pretrainer(Trainer):
             training_set_metadata: Dict[str, Any],
             **kwargs
     ):
-        before_dict = model.state_dict()
-        print(before_dict)
         ssl_model = ScarfModel(model, training_set_metadata)
         _, train_stats, _, _ = self.train(
             ssl_model,
             training_set=dataset,
             **kwargs
         )
-        after_dict = model.state_dict()
-        print(ssl_model.state_dict())
-        print(after_dict)
         return model, train_stats
 
     def evaluation(

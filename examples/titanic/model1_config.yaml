@@ -29,3 +29,5 @@ output_features:
     -
         name: Survived
         type: binary
+pretraining:
+    enabled: true
