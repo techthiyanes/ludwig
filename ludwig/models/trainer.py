@@ -805,6 +805,7 @@ class Trainer(BaseTrainer):
             shuffle_buffer_size=self.shuffle_buffer_size,
             seed=self.random_seed,
             horovod=self.horovod,
+            ignore_last=True,
         ) as batcher:
 
             # ================ Training Loop ================
