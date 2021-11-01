@@ -3,6 +3,7 @@ import math
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 from pytorch_metric_learning.losses import NTXentLoss
 from typing import Dict, Any
 
@@ -114,6 +115,7 @@ class ProjectionHead(torch.nn.Module):
 
     def forward(self, x):
         x = self.layers(x)
+        x = F.normalize(x)
         return x
 
 
@@ -181,6 +183,8 @@ class ScarfModel(LudwigModule):
             ))
             for j, (input_feature_name, input_values) in enumerate(inputs.items())
         }
+        # print('inputs', inputs['age'])
+        # print('corrupted_inputs', corrupted_inputs['age'])
 
         return corrupted_inputs
 
