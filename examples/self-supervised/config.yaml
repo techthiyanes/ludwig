@@ -30,6 +30,9 @@ input_features:
 output_features:
     - name: income
       type: category
+combiner:
+    type: concat
+    num_fc_layers: 4
 pretraining:
     enabled: true
 training:

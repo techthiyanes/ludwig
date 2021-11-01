@@ -125,15 +125,16 @@ class ConcatCombiner(CombinerClass):
         self.fc_stack = None
 
         # todo future: this may be redundant, check
+        fc_layers = config.fc_layers
         if config.fc_layers is None and \
                 config.num_fc_layers is not None:
             fc_layers = []
             for i in range(config.num_fc_layers):
                 fc_layers.append({'fc_size': config.fc_size})
 
-        self.fc_layers = config.fc_layers
+        self.fc_layers = fc_layers
 
-        if config.fc_layers is not None:
+        if self.fc_layers is not None:
             logger.debug('  FCStack')
             self.fc_stack = FCStack(
                 first_layer_input_size=self.concatenated_shape[-1],

@@ -315,9 +315,9 @@ class Trainer(BaseTrainer):
             targets, model_outputs, self.regularization_lambda
         )
 
-        if self.prev_t is not None:
-            for name, t in model.state_dict().items():
-                print(name, torch.norm((t - self.prev_t[name]).float()))
+        # if self.prev_t is not None:
+        #     for name, t in model.state_dict().items():
+        #         print(name, torch.norm((t - self.prev_t[name]).float()))
 
         self.prev_t = {}
         for name, t in model.state_dict().items():
@@ -326,6 +326,9 @@ class Trainer(BaseTrainer):
         # Begin the backward pass
         variables = model.parameters()
         loss.backward()
+
+        # for name, param in model.named_parameters():
+        #     print(name, param.grad.data.sum())
 
         if self.horovod:
             # Wait for gradient aggregation to complete before clipping the gradients

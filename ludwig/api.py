@@ -495,6 +495,7 @@ class LudwigModel:
 
                 pretrainer = Pretrainer(
                     model=self.model,
+                    training_set_metadata=training_set_metadata,
                     resume=model_resume_path is not None,
                     skip_save_model=skip_save_model,
                     skip_save_progress=skip_save_progress,
@@ -507,7 +508,6 @@ class LudwigModel:
                 self.model, pretrain_stats = pretrainer.pretrain(
                     self.model,
                     training_set,
-                    training_set_metadata,
                     save_path=model_dir,
                 )
 

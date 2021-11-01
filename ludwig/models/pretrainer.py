@@ -195,11 +195,10 @@ class ScarfModel(LudwigModule):
         return self.projection_head(combiner_outputs['combiner_output'])
 
     def train_loss(self, targets, predictions, regularization_lambda=0.0):
-        print(predictions)
         anchor_embeddings, corrupted_embeddings = predictions
-        embeddings = torch.cat((anchor_embeddings, corrupted_embeddings))
-        indices = torch.arange(0, anchor_embeddings.size(0), device=anchor_embeddings.device)
-        labels = torch.cat((indices, indices))
+        # embeddings = torch.cat((anchor_embeddings, corrupted_embeddings))
+        # indices = torch.arange(0, anchor_embeddings.size(0), device=anchor_embeddings.device)
+        # labels = torch.cat((indices, indices))
         # return self.loss_fn(embeddings, labels), {}
         return self.loss_fn(anchor_embeddings, corrupted_embeddings), {}
 
@@ -208,19 +207,18 @@ class ScarfModel(LudwigModule):
 
 
 class Pretrainer(Trainer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, model, training_set_metadata, *args, **kwargs):
+        self.ssl_model = ScarfModel(model, training_set_metadata)
+        super().__init__(self.ssl_model, *args, **kwargs)
 
     def pretrain(
             self,
             model: ECD,
             dataset: Dataset,
-            training_set_metadata: Dict[str, Any],
             **kwargs
     ):
-        ssl_model = ScarfModel(model, training_set_metadata)
         _, train_stats, _, _ = self.train(
-            ssl_model,
+            self.ssl_model,
             training_set=dataset,
             **kwargs
         )
