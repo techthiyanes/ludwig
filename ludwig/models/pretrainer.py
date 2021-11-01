@@ -20,6 +20,59 @@ def shuffle_along_axis(a, axis):
     return np.take_along_axis(a, idx, axis=axis)
 
 
+class LinearLayer(torch.nn.Module):
+    def __init__(self,
+                 in_features,
+                 out_features,
+                 use_bias=True,
+                 use_bn=False,
+                 **kwargs):
+        super(LinearLayer, self).__init__(**kwargs)
+
+        self.in_features = in_features
+        self.out_features = out_features
+        self.use_bias = use_bias
+        self.use_bn = use_bn
+
+        self.linear = torch.nn.Linear(self.in_features,
+                                      self.out_features,
+                                      bias=self.use_bias and not self.use_bn)
+        if self.use_bn:
+            self.bn = torch.nn.BatchNorm1d(self.out_features)
+
+    def forward(self, x):
+        x = self.linear(x)
+        if self.use_bn:
+            x = self.bn(x)
+        return x
+
+
+class ProjectionHead(torch.nn.Module):
+    def __init__(self,
+                 in_features,
+                 hidden_features,
+                 out_features,
+                 head_type='nonlinear',
+                 **kwargs):
+        super(ProjectionHead, self).__init__(**kwargs)
+        self.in_features = in_features
+        self.out_features = out_features
+        self.hidden_features = hidden_features
+        self.head_type = head_type
+
+        if self.head_type == 'linear':
+            self.layers = LinearLayer(self.in_features, self.out_features, False, True)
+        elif self.head_type == 'nonlinear':
+            self.layers = torch.nn.Sequential(
+                LinearLayer(self.in_features, self.hidden_features, True, True),
+                torch.nn.ReLU(),
+                LinearLayer(self.hidden_features, self.out_features, False, True))
+
+    def forward(self, x):
+        x = self.layers(x)
+        return x
+
+
 class ScarfModel(LudwigModule):
     def __init__(
             self,
@@ -33,14 +86,10 @@ class ScarfModel(LudwigModule):
         self.input_features = model.input_features
         self.output_features = torch.nn.ModuleDict()
         self.combiner = model.combiner
-        self.projection_head = FCStack(
-            first_layer_input_size=self.combiner.output_shape[-1],
-            num_layers=2,
-            default_fc_size=256,
-        )
-        self.classifier = Dense(
-            input_size=256,
-            output_size=32,
+        self.projection_head = ProjectionHead(
+            self.combiner.output_shape[-1],
+            256,
+            64
         )
         self.num_corrupted_features = math.floor(corruption_rate * len(self.input_features))
         self.loss_fn = NTXentLoss(temperature=temperature)
@@ -98,7 +147,7 @@ class ScarfModel(LudwigModule):
             encoder_outputs[input_feature_name] = encoder_output
 
         combiner_outputs = self.combiner(encoder_outputs)
-        return self.classifier(self.projection_head(combiner_outputs['combiner_output']))
+        return self.projection_head(combiner_outputs['combiner_output'])
 
     def train_loss(self, targets, predictions, regularization_lambda=0.0):
         anchor_embeddings, corrupted_embeddings = predictions

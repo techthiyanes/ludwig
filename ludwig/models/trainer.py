@@ -286,6 +286,7 @@ class Trainer(BaseTrainer):
         self.received_sigint = False
         self.callbacks = callbacks or []
         self.device = device
+        self.prev_t = None
 
         if self.horovod:
             self.learning_rate *= self.horovod.size()
@@ -313,6 +314,14 @@ class Trainer(BaseTrainer):
         loss, all_losses = model.train_loss(
             targets, model_outputs, self.regularization_lambda
         )
+
+        if self.prev_t is not None:
+            for name, t in model.state_dict().items():
+                print(name, torch.norm((t - self.prev_t[name]).float()))
+
+        self.prev_t = {}
+        for name, t in model.state_dict().items():
+            self.prev_t[name] = torch.clone(t)
 
         # Begin the backward pass
         variables = model.parameters()
