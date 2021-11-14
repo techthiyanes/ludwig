@@ -23,7 +23,7 @@ from ludwig.data.batcher.random_access import RandomAccessBatcher
 from ludwig.data.dataset.base import Dataset, DatasetManager
 from ludwig.data.sampler import DistributedSampler
 from ludwig.utils import data_utils
-from ludwig.utils.data_utils import to_numpy_dataset, DATA_TRAIN_HDF5_FP
+from ludwig.utils.data_utils import to_numpy_dataset, DATA_TRAIN_HDF5_FP, from_numpy_dataset
 from ludwig.utils.fs_utils import download_h5
 from ludwig.utils.misc_utils import get_proc_features
 
@@ -34,6 +34,12 @@ class PandasDataset(Dataset):
         self.data_hdf5_fp = data_hdf5_fp
         self.size = len(dataset)
         self.dataset = to_numpy_dataset(dataset)
+
+    def to_df(self, features):
+        return from_numpy_dataset({
+            feature.feature_name: self.dataset[feature.proc_column]
+            for feature in features
+        })
 
     def get(self, proc_column, idx=None):
         if idx is None:
