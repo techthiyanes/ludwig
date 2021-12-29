@@ -146,10 +146,6 @@ def create_default_config(
     resources = resources or get_available_resources()
     experiment_resources = allocate_experiment_resources(resources)
 
-    dataset_info = dataset
-    if not isinstance(dataset, DatasetInfo):
-        dataset_info = get_dataset_info(dataset)
-
     # detect input / output features, using those provided by the user when available
     if user_config and 'input_features' in user_config and 'output_features' in user_config:
         input_and_output_feature_config = {
@@ -157,6 +153,10 @@ def create_default_config(
             'output_features': user_config['output_features'],
         }
     else:
+        dataset_info = dataset
+        if not isinstance(dataset, DatasetInfo):
+            dataset_info = get_dataset_info(dataset)
+            
         input_and_output_feature_config = get_features_config(
             dataset_info.fields,
             dataset_info.row_count,

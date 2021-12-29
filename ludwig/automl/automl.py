@@ -115,8 +115,8 @@ def auto_train(
 def create_auto_config(
     dataset: Union[str, pd.DataFrame, dd.core.DataFrame, DatasetInfo],
     target: Union[str, List[str]],
-    time_limit_s: Union[int, float],
-    tune_for_memory: bool,
+    time_limit_s: Union[int, float] = None,
+    tune_for_memory: bool = False,
     user_config: Dict = None,
     resources: Dict = None,
     random_seed: int = default_random_seed,
@@ -143,6 +143,10 @@ def create_auto_config(
     # Return
     :return: (dict) selected model configuration
     """
+    # use time limit from user config if provided and time limit it not
+    if time_limit_s is None and user_config is not None:
+        time_limit_s = user_config.get("hyperopt", {}).get("executor", {}).get("time_budget_s")
+    
     config_options = create_default_config(
         dataset, target, time_limit_s, user_config, resources, random_seed
         )
