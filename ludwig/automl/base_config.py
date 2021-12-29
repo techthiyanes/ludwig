@@ -17,7 +17,7 @@ Builds base configuration file:
 import os
 from dataclasses import dataclass
 from dataclasses_json import LetterCase, dataclass_json
-from typing import List, Union, Set
+from typing import Any, Dict, List, Union, Set
 
 import pandas as pd
 
@@ -69,6 +69,13 @@ class DatasetInfo:
     row_count: int
 
 
+@dataclass
+class ConfigOptions:
+    base_config: Dict[str, Any]
+    encoders: Dict[str, Dict]
+    combiners: Dict[str, Dict]
+
+
 def allocate_experiment_resources(resources: dict) -> dict:
     """
     Allocates ray trial resources based on available resources
@@ -99,12 +106,14 @@ def allocate_experiment_resources(resources: dict) -> dict:
     return experiment_resources
 
 
-def _create_default_config(
+def create_default_config(
     dataset: Union[str, dd.core.DataFrame, pd.DataFrame, DatasetInfo],
     target_name: Union[str, List[str]] = None,
     time_limit_s: Union[int, float] = None,
+    user_config: Dict = None,
+    resources: Dict = None,
     random_seed: int = default_random_seed,
-) -> dict:
+) -> ConfigOptions:
     """
     Returns auto_train configs for three available combiner models.
     Coordinates the following tasks:
@@ -121,6 +130,8 @@ def _create_default_config(
     :param target_name: (str, List[str]) name of target feature
     :param time_limit_s: (int, float) total time allocated to auto_train. acts
                                     as the stopping parameter
+    :param user_config: (dict) override automatic selection of specified config items
+    :param resources: (dict) overrides automatic cluster resource detection
     :param random_seed: (int, default: `42`) a random seed that will be used anywhere
                         there is a call to a random number generator, including
                         hyperparameter search sampling, as well as data splitting,
@@ -132,21 +143,30 @@ def _create_default_config(
 
     """
     _ray_init()
-    resources = get_available_resources()
+    resources = resources or get_available_resources()
     experiment_resources = allocate_experiment_resources(resources)
 
     dataset_info = dataset
     if not isinstance(dataset, DatasetInfo):
         dataset_info = get_dataset_info(dataset)
 
-    input_and_output_feature_config = get_features_config(
-        dataset_info.fields,
-        dataset_info.row_count,
-        resources,
-        target_name
-    )
-
-    model_configs = {}
+    # detect input / output features, using those provided by the user when available
+    if user_config and 'input_features' in user_config and 'output_features' in user_config:
+        input_and_output_feature_config = {
+            'input_features': user_config['input_features'],
+            'output_features': user_config['output_features'],
+        }
+    else:
+        input_and_output_feature_config = get_features_config(
+            dataset_info.fields,
+            dataset_info.row_count,
+            resources,
+            target_name
+        )
+        if user_config and 'input_features' in user_config:
+            input_and_output_feature_config['input_features'] = user_config['input_features']
+        if user_config and 'output_features' in user_config:
+            input_and_output_feature_config['output_features'] = user_config['output_features'] 
 
     # read in base config and update with experiment resources
     base_automl_config = load_yaml(BASE_AUTOML_CONFIG)
@@ -162,24 +182,27 @@ def _create_default_config(
         "search_alg"]["random_state_seed"] = random_seed
     base_automl_config.update(input_and_output_feature_config)
 
-    model_configs["base_config"] = base_automl_config
-
     # read in all encoder configs
+    encoders = {}
     for feat_type, default_configs in encoder_defaults.items():
-        if feat_type not in model_configs.keys():
-            model_configs[feat_type] = {}
+        if feat_type not in encoders:
+            encoders[feat_type] = {}
         else:
             for encoder_name, encoder_config_path in default_configs.items():
-                model_configs[feat_type][encoder_name] = load_yaml(
+                encoders[feat_type][encoder_name] = load_yaml(
                     encoder_config_path)
 
     # read in all combiner configs
-    model_configs["combiner"] = {}
+    combiners = {}
     for combiner_type, default_config in combiner_defaults.items():
         combiner_config = load_yaml(default_config)
-        model_configs["combiner"][combiner_type] = combiner_config
+        combiners[combiner_type] = combiner_config
 
-    return model_configs
+    return ConfigOptions(
+        base_config=base_automl_config,
+        encoders=encoders,
+        combiners=combiners,
+    )
 
 
 def get_dataset_info(

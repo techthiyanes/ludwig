@@ -19,7 +19,7 @@ import yaml
 import copy
 
 from ludwig.api import LudwigModel
-from ludwig.automl.base_config import _create_default_config, DatasetInfo, get_dataset_info, infer_type
+from ludwig.automl.base_config import ConfigOptions, create_default_config, DatasetInfo, get_dataset_info, infer_type
 from ludwig.automl.auto_tune_config import memory_tune_config
 from ludwig.automl.utils import _ray_init, get_model_name
 from ludwig.constants import COMBINER, TYPE, HYPEROPT, NUMERICAL
@@ -118,6 +118,7 @@ def create_auto_config(
     time_limit_s: Union[int, float],
     tune_for_memory: bool,
     user_config: Dict = None,
+    resources: Dict = None,
     random_seed: int = default_random_seed,
 ) -> dict:
     """
@@ -133,6 +134,7 @@ def create_auto_config(
     :param tune_for_memory: (bool) refine hyperopt search space for available
                             host / GPU memory
     :param user_config: (dict) override automatic selection of specified config items
+    :param resources: (dict) overrides automatic cluster resource detection
     :param random_seed: (int, default: `42`) a random seed that will be used anywhere
                         there is a call to a random number generator, including
                         hyperparameter search sampling, as well as data splitting,
@@ -141,9 +143,11 @@ def create_auto_config(
     # Return
     :return: (dict) selected model configuration
     """
-    default_configs = _create_default_config(dataset, target, time_limit_s, random_seed)
+    config_options = create_default_config(
+        dataset, target, time_limit_s, user_config, resources, random_seed
+        )
     model_config = _model_select(
-        dataset, default_configs, user_config
+        dataset, config_options, user_config
     )
     if tune_for_memory:
         if ray.is_initialized():
@@ -207,9 +211,9 @@ def train_with_config(
 
 def _model_select(
     dataset: Union[str, pd.DataFrame, dd.core.DataFrame, DatasetInfo],
-    default_configs,
-    user_config,
-):
+    config_options: ConfigOptions,
+    user_config: Dict,
+) -> Dict:
     """
     Performs model selection based on dataset or user specified model.
     Note: Current implementation returns tabnet by default.
@@ -219,19 +223,19 @@ def _model_select(
         dataset, DatasetInfo) else dataset
     fields = dataset_info.fields
 
-    base_config = default_configs["base_config"]
+    base_config = config_options.base_config
 
     # tabular dataset heuristics
     if len(fields) > 3:
         base_config = merge_dict(
-            base_config, default_configs["combiner"]["tabnet"])
+            base_config, config_options.combiners["tabnet"])
 
         # override combiner heuristic if explicitly provided by user
         if user_config is not None:
             if "combiner" in user_config.keys():
                 model_type = user_config["combiner"]["type"]
                 base_config = merge_dict(
-                    base_config, default_configs["combiner"][model_type])
+                    base_config, config_options.combiners[model_type])
     else:
         # text heuristics
         for input_feature in base_config["input_features"]:
@@ -240,7 +244,7 @@ def _model_select(
             if input_feature["type"] == "text":
                 input_feature["encoder"] = "bert"
                 base_config = merge_dict(
-                    base_config, default_configs["text"]["bert"])
+                    base_config, config_options.encoders["text"]["bert"])
 
             # TODO (ASN): add image heuristics
 
