@@ -1331,11 +1331,14 @@ class LudwigModel:
         """
         # Initialize Horovod and PyTorch before calling `broadcast()` to prevent initializing
         # TensorFlow with default parameters
+        print(f"Loading model with backend: {backend}")
         backend_param = backend
         backend = initialize_backend(backend)
+        print(f"Backend initialized 1: {backend}")
         backend.initialize_pytorch(
             gpus=gpus, gpu_memory_limit=gpu_memory_limit, allow_parallel_threads=allow_parallel_threads
         )
+        print(f"Backend initialized 2: {backend}")
 
         config = backend.broadcast_return(lambda: load_json(os.path.join(model_dir, MODEL_HYPERPARAMETERS_FILE_NAME)))
 

@@ -20,6 +20,7 @@ import logging
 import os
 import sys
 import tempfile
+from typing import Optional
 
 import pandas as pd
 import torch
@@ -172,7 +173,7 @@ def run_server(
     model_path: str,
     host: str,
     port: int,
-    allowed_origins: list,
+    allowed_origins: Optional[list] = None,
 ) -> None:
     """Loads a pre-trained model and serve it on an http server.
 

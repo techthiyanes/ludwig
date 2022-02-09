@@ -922,6 +922,11 @@ class Trainer(BaseTrainer):
             # obtain batch
             batch = batcher.next_batch()
 
+            print(f"train_loop, self.device: {self.device}")
+            print(f"train_loop, torch.cuda.current_device(): {torch.cuda.current_device()}")
+            print(f"train_loop, torch.cuda.device_count(): {torch.cuda.device_count()}")
+            print(f"train_loop, torch.cuda.get_device_name(): {torch.cuda.get_device_name()}")
+
             # Move tensors to cuda here.
             inputs = {
                 i_feat.feature_name: torch.from_numpy(batch[i_feat.proc_column]).to(self.device)

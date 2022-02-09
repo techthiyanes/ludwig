@@ -1026,6 +1026,8 @@ def build_dataset(
     mode=None,
 ):
     df_engine = backend.df_engine
+    print(f'build_dataset backend: {backend}')
+    print(f'build_dataset df_engine: {df_engine}')
     dataset_df = df_engine.parallelize(dataset_df)
 
     # If persisting DataFrames in memory is enabled, we want to do this after

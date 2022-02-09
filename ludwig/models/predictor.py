@@ -80,6 +80,11 @@ class Predictor(BasePredictor):
         prev_model_training_mode = self.model.training  # store previous model training mode
         self.model.eval()  # set model to eval mode
 
+        print(f"batch_predict, self.device: {self.device}")
+        print(f"batch_predict, torch.cuda.current_device(): {torch.cuda.current_device()}")
+        print(f"batch_predict, torch.cuda.device_count(): {torch.cuda.device_count()}")
+        print(f"batch_predict, torch.cuda.get_device_name(): {torch.cuda.get_device_name()}")
+
         with torch.no_grad():
             with dataset.initialize_batcher(self._batch_size, should_shuffle=False, horovod=self._horovod) as batcher:
 
@@ -159,6 +164,11 @@ class Predictor(BasePredictor):
     def batch_evaluation(self, dataset, collect_predictions=False, dataset_name=None):
         prev_model_training_mode = self.model.training  # store previous model training mode
         self.model.eval()  # set model to eval mode
+
+        print(f"batch_evaluation, self.device: {self.device}")
+        print(f"batch_evaluation, torch.cuda.current_device(): {torch.cuda.current_device()}")
+        print(f"batch_evaluation, torch.cuda.device_count(): {torch.cuda.device_count()}")
+        print(f"batch_evaluation, torch.cuda.get_device_name(): {torch.cuda.get_device_name()}")
 
         with torch.no_grad():
             with dataset.initialize_batcher(self._batch_size, should_shuffle=False, horovod=self._horovod) as batcher:
