@@ -36,6 +36,7 @@ from ludwig.constants import (
     FULL,
     NAME,
     NUMBER,
+    OUTPUT_FLAG,
     PAD,
     PREPROCESSING,
     PROC_COLUMN,
@@ -46,7 +47,6 @@ from ludwig.constants import (
     TRAINING,
     TYPE,
     VALIDATION,
-    OUTPUT_FLAG,
 )
 from ludwig.data.concatenate_datasets import concatenate_df, concatenate_files
 from ludwig.data.dataset.base import Dataset
@@ -107,17 +107,17 @@ class DataFormatPreprocessor(ABC):
     @staticmethod
     @abstractmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         pass
 
@@ -129,16 +129,16 @@ class DataFormatPreprocessor(ABC):
     @staticmethod
     @abstractmethod
     def prepare_processed_data(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
     ):
         pass
 
@@ -146,17 +146,17 @@ class DataFormatPreprocessor(ABC):
 class DictPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         num_overrides = override_in_memory_flag(features, True)
         if num_overrides > 0:
@@ -201,17 +201,17 @@ class DictPreprocessor(DataFormatPreprocessor):
 class DataFramePreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         num_overrides = override_in_memory_flag(features, True)
         if num_overrides > 0:
@@ -250,17 +250,17 @@ class DataFramePreprocessor(DataFormatPreprocessor):
 class CSVPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -296,17 +296,17 @@ class CSVPreprocessor(DataFormatPreprocessor):
 class TSVPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -342,17 +342,17 @@ class TSVPreprocessor(DataFormatPreprocessor):
 class JSONPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -388,17 +388,17 @@ class JSONPreprocessor(DataFormatPreprocessor):
 class JSONLPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -434,17 +434,17 @@ class JSONLPreprocessor(DataFormatPreprocessor):
 class ExcelPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -480,17 +480,17 @@ class ExcelPreprocessor(DataFormatPreprocessor):
 class ParquetPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -524,16 +524,16 @@ class ParquetPreprocessor(DataFormatPreprocessor):
 
     @staticmethod
     def prepare_processed_data(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
     ):
         test_set = test_set if test_set and path_exists(test_set) else None
         validation_set = validation_set if validation_set and path_exists(validation_set) else None
@@ -543,17 +543,17 @@ class ParquetPreprocessor(DataFormatPreprocessor):
 class PicklePreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -589,17 +589,17 @@ class PicklePreprocessor(DataFormatPreprocessor):
 class FatherPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -635,17 +635,17 @@ class FatherPreprocessor(DataFormatPreprocessor):
 class FWFPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -681,17 +681,17 @@ class FWFPreprocessor(DataFormatPreprocessor):
 class HTMLPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -727,17 +727,17 @@ class HTMLPreprocessor(DataFormatPreprocessor):
 class ORCPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -773,17 +773,17 @@ class ORCPreprocessor(DataFormatPreprocessor):
 class SASPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -819,17 +819,17 @@ class SASPreprocessor(DataFormatPreprocessor):
 class SPSSPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -865,17 +865,17 @@ class SPSSPreprocessor(DataFormatPreprocessor):
 class StataPreprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return _preprocess_file_for_training(
             features,
@@ -911,17 +911,17 @@ class StataPreprocessor(DataFormatPreprocessor):
 class HDF5Preprocessor(DataFormatPreprocessor):
     @staticmethod
     def preprocess_for_training(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
-            callbacks=None,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
+        callbacks=None,
     ):
         return HDF5Preprocessor.prepare_processed_data(
             features,
@@ -944,16 +944,16 @@ class HDF5Preprocessor(DataFormatPreprocessor):
 
     @staticmethod
     def prepare_processed_data(
-            features,
-            dataset=None,
-            training_set=None,
-            validation_set=None,
-            test_set=None,
-            training_set_metadata=None,
-            skip_save_processed_input=False,
-            preprocessing_params=default_preprocessing_parameters,
-            backend=LOCAL_BACKEND,
-            random_seed=default_random_seed,
+        features,
+        dataset=None,
+        training_set=None,
+        validation_set=None,
+        test_set=None,
+        training_set_metadata=None,
+        skip_save_processed_input=False,
+        preprocessing_params=default_preprocessing_parameters,
+        backend=LOCAL_BACKEND,
+        random_seed=default_random_seed,
     ):
         if dataset is None and training_set is None:
             raise ValueError("One of `dataset` or `training_set` must be not None")
@@ -1017,15 +1017,15 @@ data_format_preprocessor_registry = {
 
 
 def build_dataset(
-        dataset_df,
-        features,
-        global_preprocessing_parameters,
-        metadata=None,
-        backend=LOCAL_BACKEND,
-        random_seed=default_random_seed,
-        skip_save_processed_input=False,
-        callbacks=None,
-        mode=None,
+    dataset_df,
+    features,
+    global_preprocessing_parameters,
+    metadata=None,
+    backend=LOCAL_BACKEND,
+    random_seed=default_random_seed,
+    skip_save_processed_input=False,
+    callbacks=None,
+    mode=None,
 ):
     df_engine = backend.df_engine
     dataset_df = df_engine.parallelize(dataset_df)
@@ -1070,13 +1070,11 @@ def build_dataset(
     logger.debug("get split")
     split = get_split(
         dataset_df,
-        force_split=global_preprocessing_parameters['force_split'],
-        split_probabilities=global_preprocessing_parameters[
-            'split_probabilities'
-        ],
-        stratify=global_preprocessing_parameters['stratify'],
+        force_split=global_preprocessing_parameters["force_split"],
+        split_probabilities=global_preprocessing_parameters["split_probabilities"],
+        stratify=global_preprocessing_parameters["stratify"],
         backend=backend,
-        random_seed=random_seed
+        random_seed=random_seed,
     )
 
     if split is not None:
@@ -1122,7 +1120,7 @@ def cast_columns(dataset_df, features, backend) -> Dict[str, DataFrame]:
 
 
 def merge_preprocessing(
-        feature_config: Dict[str, Any], global_preprocessing_parameters: Dict[str, Any]
+    feature_config: Dict[str, Any], global_preprocessing_parameters: Dict[str, Any]
 ) -> Dict[str, Any]:
     if PREPROCESSING not in feature_config:
         return global_preprocessing_parameters[feature_config[TYPE]]
@@ -1131,11 +1129,11 @@ def merge_preprocessing(
 
 
 def build_metadata(
-        metadata: Dict[str, Any],
-        dataset_cols: Dict[str, Column],
-        feature_configs: List[Dict[str, Any]],
-        global_preprocessing_parameters: Dict[str, Any],
-        backend: Backend,
+    metadata: Dict[str, Any],
+    dataset_cols: Dict[str, Column],
+    feature_configs: List[Dict[str, Any]],
+    global_preprocessing_parameters: Dict[str, Any],
+    backend: Backend,
 ) -> Dict[str, Any]:
     for feature_config in feature_configs:
         if feature_config[NAME] in metadata:
@@ -1174,11 +1172,11 @@ def build_metadata(
 
 
 def build_data(
-        input_cols: DataFrame,
-        feature_configs: List[Dict],
-        training_set_metadata: Dict,
-        backend: Backend,
-        skip_save_processed_input: bool,
+    input_cols: DataFrame,
+    feature_configs: List[Dict],
+    training_set_metadata: Dict,
+    backend: Backend,
+    skip_save_processed_input: bool,
 ) -> Dict[str, DataFrame]:
     """Preprocesses the input dataframe columns, handles missing values, and potentially adds metadata to
     training_set_metadata.
@@ -1210,14 +1208,9 @@ def build_data(
     return proc_cols
 
 
-def balance_data(
-        dataset_df: DataFrame,
-        features: List[Dict],
-        preprocessing_parameters: Dict,
-        backend: Backend
-):
-    """
-    The purpose of this function is to balance the training dataset using either over-sampling or under-sampling.
+def balance_data(dataset_df: DataFrame, features: List[Dict], preprocessing_parameters: Dict, backend: Backend):
+    """The purpose of this function is to balance the training dataset using either over-sampling or under-
+    sampling.
 
     Args:
         dataset_df: Input dataframe to be over-sampled or under-sampled.
@@ -1226,7 +1219,6 @@ def balance_data(
         backend: Backend for data processing.
 
     Returns: An over-sampled or under-sampled training dataset.
-
     """
     target = None
     target_count = 0
@@ -1236,13 +1228,9 @@ def balance_data(
             target_count += 1
 
     if target_count > 1:
-        raise ValueError(
-            "Class balancing is only available for single target datasets"
-        )
+        raise ValueError("Class balancing is only available for single target datasets")
     if target[TYPE] != BINARY:
-        raise ValueError(
-            "Class balancing is only supported for binary output types"
-        )
+        raise ValueError("Class balancing is only supported for binary output types")
 
     if backend.df_engine.partitioned:
         majority_class = backend.df_engine.compute(dataset_df[target[PROC_COLUMN]].value_counts()).idxmax()
@@ -1253,12 +1241,11 @@ def balance_data(
     majority_df = dataset_df[dataset_df[target[PROC_COLUMN]] == majority_class]
     minority_df = dataset_df[dataset_df[target[PROC_COLUMN]] == minority_class]
 
-    if preprocessing_parameters['oversample_minority']:
-        sample_fraction = (len(majority_df) * preprocessing_parameters['oversample_minority']) / len(minority_df)
+    if preprocessing_parameters["oversample_minority"]:
+        sample_fraction = (len(majority_df) * preprocessing_parameters["oversample_minority"]) / len(minority_df)
         minority_df = minority_df.sample(frac=sample_fraction, replace=True)
-    elif preprocessing_parameters['undersample_majority']:
-        sample_fraction = int(len(minority_df) / preprocessing_parameters['undersample_majority']) / len(
-            majority_df)
+    elif preprocessing_parameters["undersample_majority"]:
+        sample_fraction = int(len(minority_df) / preprocessing_parameters["undersample_majority"]) / len(majority_df)
         majority_df = majority_df.sample(frac=sample_fraction, replace=False)
 
     if backend.df_engine.partitioned:
@@ -1331,12 +1318,12 @@ def handle_missing_values(dataset_cols, feature, preprocessing_parameters):
 
 
 def get_split(
-        dataset_df,
-        force_split=False,
-        split_probabilities=(0.7, 0.1, 0.2),
-        stratify=None,
-        backend=LOCAL_BACKEND,
-        random_seed=default_random_seed,
+    dataset_df,
+    force_split=False,
+    split_probabilities=(0.7, 0.1, 0.2),
+    stratify=None,
+    backend=LOCAL_BACKEND,
+    random_seed=default_random_seed,
 ):
     if SPLIT in dataset_df and not force_split:
         split = dataset_df[SPLIT]
@@ -1350,8 +1337,8 @@ def get_split(
 
             split = (
                 dataset_df.index.to_series()
-                    .map(lambda x: np.random.choice(3, 1, p=split_probabilities))
-                    .astype(np.int8)
+                .map(lambda x: np.random.choice(3, 1, p=split_probabilities))
+                .astype(np.int8)
             )
         else:
             split = np.zeros(len(dataset_df))
@@ -1395,18 +1382,18 @@ def load_metadata(metadata_file_path):
 
 
 def preprocess_for_training(
-        config,
-        dataset=None,
-        training_set=None,
-        validation_set=None,
-        test_set=None,
-        training_set_metadata=None,
-        data_format=None,
-        skip_save_processed_input=False,
-        preprocessing_params=default_preprocessing_parameters,
-        backend=LOCAL_BACKEND,
-        random_seed=default_random_seed,
-        callbacks=None,
+    config,
+    dataset=None,
+    training_set=None,
+    validation_set=None,
+    test_set=None,
+    training_set_metadata=None,
+    data_format=None,
+    skip_save_processed_input=False,
+    preprocessing_params=default_preprocessing_parameters,
+    backend=LOCAL_BACKEND,
+    random_seed=default_random_seed,
+    callbacks=None,
 ) -> Tuple[Dataset, Dataset, Dataset, Dict[str, Any]]:
     """Returns training, val and test datasets with training set metadata."""
 
@@ -1518,18 +1505,18 @@ def preprocess_for_training(
 
 
 def _preprocess_file_for_training(
-        features,
-        dataset=None,
-        training_set=None,
-        validation_set=None,
-        test_set=None,
-        training_set_metadata=None,
-        read_fn=read_csv,
-        skip_save_processed_input=False,
-        preprocessing_params=default_preprocessing_parameters,
-        backend=LOCAL_BACKEND,
-        random_seed=default_random_seed,
-        callbacks=None,
+    features,
+    dataset=None,
+    training_set=None,
+    validation_set=None,
+    test_set=None,
+    training_set_metadata=None,
+    read_fn=read_csv,
+    skip_save_processed_input=False,
+    preprocessing_params=default_preprocessing_parameters,
+    backend=LOCAL_BACKEND,
+    random_seed=default_random_seed,
+    callbacks=None,
 ):
     """Method to pre-process csv data.
 
@@ -1606,23 +1593,23 @@ def _preprocess_file_for_training(
         logger.debug("split randomly by partition")
         training_data, test_data, validation_data = data.random_split(preprocessing_params["split_probabilities"])
 
-    if preprocessing_params['oversample_minority'] or preprocessing_params['undersample_majority']:
+    if preprocessing_params["oversample_minority"] or preprocessing_params["undersample_majority"]:
         training_data = balance_data(training_data, features, preprocessing_params, backend)
 
     return training_data, test_data, validation_data, training_set_metadata
 
 
 def _preprocess_df_for_training(
-        features,
-        dataset=None,
-        training_set=None,
-        validation_set=None,
-        test_set=None,
-        training_set_metadata=None,
-        preprocessing_params=default_preprocessing_parameters,
-        backend=LOCAL_BACKEND,
-        random_seed=default_random_seed,
-        callbacks=None,
+    features,
+    dataset=None,
+    training_set=None,
+    validation_set=None,
+    test_set=None,
+    training_set_metadata=None,
+    preprocessing_params=default_preprocessing_parameters,
+    backend=LOCAL_BACKEND,
+    random_seed=default_random_seed,
+    callbacks=None,
 ):
     """Method to pre-process dataframes.
 
@@ -1659,21 +1646,21 @@ def _preprocess_df_for_training(
         logger.debug("split randomly by partition")
         training_set, test_set, validation_set = dataset.random_split(preprocessing_params["split_probabilities"])
 
-    if preprocessing_params['oversample_minority'] or preprocessing_params['undersample_majority']:
+    if preprocessing_params["oversample_minority"] or preprocessing_params["undersample_majority"]:
         training_set = balance_data(training_set, features, preprocessing_params, backend)
 
     return training_set, test_set, validation_set, training_set_metadata
 
 
 def preprocess_for_prediction(
-        config,
-        dataset,
-        training_set_metadata=None,
-        data_format=None,
-        split=FULL,
-        include_outputs=True,
-        backend=LOCAL_BACKEND,
-        callbacks=None,
+    config,
+    dataset,
+    training_set_metadata=None,
+    data_format=None,
+    split=FULL,
+    include_outputs=True,
+    backend=LOCAL_BACKEND,
+    callbacks=None,
 ):
     """Preprocesses the dataset to parse it into a format that is usable by the Ludwig core.
 

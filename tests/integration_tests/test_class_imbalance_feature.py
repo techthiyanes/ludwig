@@ -1,25 +1,27 @@
 import contextlib
-import tempfile
 import os
 import shutil
-
-import pytest
-import ray
+import tempfile
 
 import numpy as np
 import pandas as pd
+import pytest
+import ray
 
-from ludwig.backend.ray import RayBackend
-from ludwig.backend import LocalBackend
 from ludwig.api import LudwigModel
-from tests.integration_tests.utils import spawn
-from tests.integration_tests.utils import create_data_set_to_use
+from ludwig.backend import LocalBackend
+from ludwig.backend.ray import RayBackend
+from tests.integration_tests.utils import create_data_set_to_use, spawn
 
 DFS = {
-    "test_df_1": pd.DataFrame({"Index": np.arange(0, 200, 1),
-                               "random_1": np.random.randint(0, 50, 200),
-                               "random_2": np.random.choice(['Type A', 'Type B', 'Type C', 'Type D'], 200),
-                               "Label": np.concatenate((np.zeros(180), np.ones(20)))})
+    "test_df_1": pd.DataFrame(
+        {
+            "Index": np.arange(0, 200, 1),
+            "random_1": np.random.randint(0, 50, 200),
+            "random_2": np.random.choice(["Type A", "Type B", "Type C", "Type D"], 200),
+            "Label": np.concatenate((np.zeros(180), np.ones(20))),
+        }
+    )
 }
 
 CONFIGS = {
@@ -27,12 +29,11 @@ CONFIGS = {
         "input_features": [
             {"name": "Index", "column": "Index", "type": "numerical", "output_flag": False},
             {"name": "random_1", "column": "random_1", "type": "numerical", "output_flag": False},
-            {"name": "random_2", "column": "random_2", "type": "numerical", "output_flag": False}],
-        "output_features": [
-            {"name": "Label", "column": "Label", "type": "binary", "output_flag": True}
+            {"name": "random_2", "column": "random_2", "type": "numerical", "output_flag": False},
         ],
-        'trainer': {"epochs": 2, "batch_size": 8},
-        "preprocessing": {}
+        "output_features": [{"name": "Label", "column": "Label", "type": "binary", "output_flag": True}],
+        "trainer": {"epochs": 2, "batch_size": 8},
+        "preprocessing": {},
     }
 }
 
@@ -68,11 +69,12 @@ def ray_start(num_cpus=2, num_gpus=None):
 
 @spawn
 def run_test_imbalance_ray(
-        input_df,
-        config,
-        balance,
-        num_cpus=2,
-        num_gpus=None, ):
+    input_df,
+    config,
+    balance,
+    num_cpus=2,
+    num_gpus=None,
+):
     with ray_start(num_cpus=num_cpus, num_gpus=num_gpus):
         with tempfile.TemporaryDirectory() as tmpdir:
             csv_filename = os.path.join(tmpdir, "dataset.csv")
@@ -102,81 +104,86 @@ def run_test_imbalance_ray(
             processed_target_pos = output_dataset[0].ds.sum(on="Label_mZFLky")
             processed_target_neg = output_dataset[0].ds.count() - output_dataset[0].ds.sum(on="Label_mZFLky")
             assert len(input_train_set) == 140
-            assert 0.05 <= len(input_train_set[input_train_set['Label'] == 1]) / len(input_train_set) <= 0.15
+            assert 0.05 <= len(input_train_set[input_train_set["Label"] == 1]) / len(input_train_set) <= 0.15
             assert round(processed_target_pos / processed_target_neg, 1) == 0.5
             assert model.backend.df_engine.parallelism == RAY_BACKEND_CONFIG["processor"]["parallelism"]
             assert isinstance(model.backend, RayBackend)
 
-        if balance == 'oversample_minority':
+        if balance == "oversample_minority":
             assert len(input_train_set) < processed_len
             assert 55 <= processed_target_pos <= 75
             assert 110 <= processed_target_neg <= 150
 
-        if balance == 'undersample_majority':
+        if balance == "undersample_majority":
             assert len(input_train_set) > processed_len
             assert 7 <= processed_target_pos <= 20
             assert 14 <= processed_target_neg <= 40
 
 
 def run_test_imbalance_local(
-        input_df,
-        config,
-        balance, ):
+    input_df,
+    config,
+    balance,
+):
     model = LudwigModel(config)
-    _, output_dataset, output_dir = model.train(input_df,
-                                                skip_save_model=True,
-                                                skip_save_log=True,
-                                                skip_save_progress=True,
-                                                skip_save_processed_input=True,
-                                                skip_save_training_description=True,
-                                                skip_save_training_statistics=True)
+    _, output_dataset, output_dir = model.train(
+        input_df,
+        skip_save_model=True,
+        skip_save_log=True,
+        skip_save_progress=True,
+        skip_save_processed_input=True,
+        skip_save_training_description=True,
+        skip_save_training_statistics=True,
+    )
 
     input_train_set = input_df.sample(frac=0.7, replace=False)
     processed_len = output_dataset[0].size
-    processed_target_pos = sum(output_dataset[0].dataset['Label_mZFLky'])
-    processed_target_neg = len(output_dataset[0].dataset['Label_mZFLky']) - processed_target_pos
+    processed_target_pos = sum(output_dataset[0].dataset["Label_mZFLky"])
+    processed_target_neg = len(output_dataset[0].dataset["Label_mZFLky"]) - processed_target_pos
     assert len(input_train_set) == 140
-    assert 0.05 <= len(input_train_set[input_train_set['Label'] == 1]) / len(input_train_set) <= 0.15
+    assert 0.05 <= len(input_train_set[input_train_set["Label"] == 1]) / len(input_train_set) <= 0.15
     assert round(processed_target_pos / processed_target_neg, 1) == 0.5
     assert isinstance(model.backend, LocalBackend)
 
-    if balance == 'oversample_minority':
+    if balance == "oversample_minority":
         assert len(input_train_set) < processed_len
         assert 55 <= processed_target_pos <= 75
         assert 110 <= processed_target_neg <= 150
 
-    if balance == 'undersample_majority':
+    if balance == "undersample_majority":
         assert len(input_train_set) > processed_len
         assert 7 <= processed_target_pos <= 20
         assert 14 <= processed_target_neg <= 40
 
 
 @pytest.mark.parametrize(
-    "balance", ["oversample_minority", "undersample_majority"],
+    "balance",
+    ["oversample_minority", "undersample_majority"],
 )
 @pytest.mark.distributed
 def test_imbalance_ray(balance):
-    df = DFS['test_df_1']
+    df = DFS["test_df_1"]
     config = CONFIGS["test_config_1"].copy()
     if balance == "oversample_minority":
-        config['preprocessing'][balance] = 0.5
-        config['preprocessing']["undersample_majority"] = None
+        config["preprocessing"][balance] = 0.5
+        config["preprocessing"]["undersample_majority"] = None
     else:
-        config['preprocessing'][balance] = 0.5
-        config['preprocessing']["oversample_minority"] = None
+        config["preprocessing"][balance] = 0.5
+        config["preprocessing"]["oversample_minority"] = None
     run_test_imbalance_ray(df, config, balance)
 
 
 @pytest.mark.parametrize(
-    "balance", ["oversample_minority", "undersample_majority"],
+    "balance",
+    ["oversample_minority", "undersample_majority"],
 )
 def test_imbalance_local(balance):
-    df = DFS['test_df_1']
+    df = DFS["test_df_1"]
     config = CONFIGS["test_config_1"].copy()
     if balance == "oversample_minority":
-        config['preprocessing'][balance] = 0.5
-        config['preprocessing']["undersample_majority"] = None
+        config["preprocessing"][balance] = 0.5
+        config["preprocessing"]["undersample_majority"] = None
     else:
-        config['preprocessing'][balance] = 0.5
-        config['preprocessing']["oversample_minority"] = None
+        config["preprocessing"][balance] = 0.5
+        config["preprocessing"]["oversample_minority"] = None
     run_test_imbalance_local(df, config, balance)

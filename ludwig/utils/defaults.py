@@ -32,11 +32,11 @@ from ludwig.constants import (
     LOSS,
     NAME,
     NUMBER,
+    OUTPUT_FLAG,
     PREPROCESSING,
     PROC_COLUMN,
     TRAINER,
     TYPE,
-    OUTPUT_FLAG,
 )
 from ludwig.contrib import add_contrib_callback_args
 from ludwig.features.feature_registries import base_type_registry, input_type_registry, output_type_registry
@@ -61,7 +61,7 @@ default_preprocessing_parameters = {
     "split_probabilities": default_preprocessing_split_probabilities,
     "stratify": default_preprocessing_stratify,
     "undersample_majority": default_preprocessing_undersample_majority,
-    "oversample_minority": default_preprocessing_oversample_minority
+    "oversample_minority": default_preprocessing_oversample_minority,
 }
 default_preprocessing_parameters.update(
     {name: base_type.preprocessing_defaults() for name, base_type in base_type_registry.items()}
@@ -207,10 +207,10 @@ def _perform_sanity_checks(config):
 
 
 def _set_output_flag(config: dict) -> None:
-    for feature in config['input_features']:
+    for feature in config["input_features"]:
         if OUTPUT_FLAG not in feature:
             feature[OUTPUT_FLAG] = False
-    for feature in config['output_features']:
+    for feature in config["output_features"]:
         if OUTPUT_FLAG not in feature:
             feature[OUTPUT_FLAG] = True
 
